@@ -4,18 +4,28 @@ MoneyMap - Simple Expense Tracker Backend
 A minimal Flask API that stores expenses in memory (a Python list).
 No database is used - data resets every time the server restarts.
 
+This backend is deployed separately from the frontend. The frontend
+(HTML/CSS/JS) lives on GitHub Pages and talks to this API over HTTP.
+
 Endpoints:
-    GET    /                  -> serves the frontend page
     POST   /add_expense       -> add a new expense
     GET    /expenses          -> list all expenses
     DELETE /expense/<id>      -> delete an expense by id
     GET    /summary           -> total spending grouped by category
 """
 
-from flask import Flask, render_template, request, jsonify
+import os
 import itertools
 
+from flask import Flask, request, jsonify
+from flask_cors import CORS
+
 app = Flask(__name__)
+
+# Allow requests from any origin (e.g. your GitHub Pages site).
+# For a stricter setup, replace "*" with your actual frontend URL,
+# e.g. CORS(app, origins=["https://your-username.github.io"])
+CORS(app)
 
 # -----------------------------------------------------------------
 # In-memory "database"
@@ -26,15 +36,6 @@ expenses = []
 
 # A simple counter to generate unique IDs (itertools.count gives 1, 2, 3, ...)
 id_counter = itertools.count(1)
-
-
-# -----------------------------------------------------------------
-# Frontend route
-# -----------------------------------------------------------------
-@app.route("/")
-def index():
-    """Serve the main HTML page."""
-    return render_template("index.html")
 
 
 # -----------------------------------------------------------------
@@ -117,5 +118,8 @@ def get_summary():
 
 
 if __name__ == "__main__":
-    # debug=True gives auto-reload + helpful error pages during development
-    app.run(debug=True)
+    # Render (and most hosting platforms) tell your app which port to
+    # listen on via the PORT environment variable. Locally, PORT won't
+    # be set, so we fall back to 5000 for local testing.
+    port = int(os.environ.get("PORT", 5000))
+    app.run(host="0.0.0.0", port=port, debug=True)
