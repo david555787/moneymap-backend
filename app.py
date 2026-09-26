@@ -27,6 +27,23 @@ app = Flask(__name__)
 # e.g. CORS(app, origins=["https://your-username.github.io"])
 CORS(app)
 
+
+# -----------------------------------------------------------------
+# Root route: a friendly landing message for anyone who visits the
+# base URL directly (this backend has no HTML frontend of its own).
+# -----------------------------------------------------------------
+@app.route("/")
+def root():
+    return jsonify({
+        "message": "MoneyMap backend is running.",
+        "endpoints": {
+            "POST /add_expense": "add a new expense",
+            "GET /expenses": "list all expenses",
+            "DELETE /expense/<id>": "delete an expense by id",
+            "GET /summary": "total spending grouped by category",
+        }
+    })
+
 # -----------------------------------------------------------------
 # In-memory "database"
 # -----------------------------------------------------------------
